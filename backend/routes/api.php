@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\ReversalController;
+use App\Http\Controllers\StatementController;
 use App\Http\Controllers\TransferController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    Route::get('/transactions', [StatementController::class, 'index']);
 
     Route::middleware('throttle:financial')->group(function () {
         Route::post('/deposits', [DepositController::class, 'store']);

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\ReversalDTO;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Exceptions\TransactionAlreadyReversedException;
@@ -9,6 +10,7 @@ use App\Models\Transaction;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
 use App\Repositories\Contracts\WalletRepositoryInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ReversalService
 {
@@ -18,18 +20,42 @@ class ReversalService
     ) {
     }
 
-    public function reverse(Transaction $transaction): Transaction
+    public function reverse(ReversalDTO $dto): Transaction
     {
-        return match ($transaction->type) {
-            TransactionType::Deposit => $this->reverseDeposit($transaction),
-            TransactionType::TransferOut, TransactionType::TransferIn => $this->reverseTransfer($transaction),
-            default => throw new TransactionAlreadyReversedException('Esta transação não pode ser revertida.'),
-        };
+        try {
+            $reversal = match ($dto->transaction->type) {
+                TransactionType::Deposit => $this->reverseDeposit($dto),
+                TransactionType::TransferOut, TransactionType::TransferIn => $this->reverseTransfer($dto),
+                default => throw new TransactionAlreadyReversedException('Esta transação não pode ser revertida.'),
+            };
+        } catch (TransactionAlreadyReversedException $e) {
+            Log::channel('financial')->warning('reversal.rejected', [
+                'transaction_id' => $dto->transaction->id,
+                'wallet_id' => $dto->transaction->wallet_id,
+                'amount' => $dto->transaction->amount,
+                'result' => 'rejected',
+                'reason' => 'already_reversed',
+            ]);
+
+            throw $e;
+        }
+
+        Log::channel('financial')->info('reversal.completed', [
+            'transaction_id' => $reversal->id,
+            'reference_id' => $dto->transaction->id,
+            'wallet_id' => $reversal->wallet_id,
+            'amount' => $reversal->amount,
+            'result' => 'success',
+        ]);
+
+        return $reversal;
     }
 
-    private function reverseDeposit(Transaction $original): Transaction
+    private function reverseDeposit(ReversalDTO $dto): Transaction
     {
-        return DB::transaction(function () use ($original) {
+        return DB::transaction(function () use ($dto) {
+            $original = $dto->transaction;
+
             $this->assertNotAlreadyReversed($original);
 
             $wallet = $this->wallets->findByIdForUpdate($original->wallet_id);
@@ -44,13 +70,18 @@ class ReversalService
                 'status' => TransactionStatus::Completed,
                 'amount' => $original->amount,
                 'reference_id' => $original->id,
+                'metadata' => [
+                    'ip' => $dto->ip,
+                    'user_agent' => $dto->userAgent,
+                ],
             ]);
         });
     }
 
-    private function reverseTransfer(Transaction $leg): Transaction
+    private function reverseTransfer(ReversalDTO $dto): Transaction
     {
-        return DB::transaction(function () use ($leg) {
+        return DB::transaction(function () use ($dto) {
+            $leg = $dto->transaction;
             $sibling = $leg->relatedTransaction()->lockForUpdate()->firstOrFail();
 
             [$transferOut, $transferIn] = $leg->type === TransactionType::TransferOut
@@ -69,6 +100,11 @@ class ReversalService
             $this->wallets->incrementBalance($senderWallet, $transferOut->amount);
             $this->wallets->incrementBalance($recipientWallet, -$transferIn->amount);
 
+            $metadata = [
+                'ip' => $dto->ip,
+                'user_agent' => $dto->userAgent,
+            ];
+
             $reversalOut = $this->transactions->create([
                 'wallet_id' => $senderWallet->id,
                 'related_wallet_id' => $recipientWallet->id,
@@ -76,6 +112,7 @@ class ReversalService
                 'status' => TransactionStatus::Completed,
                 'amount' => $transferOut->amount,
                 'reference_id' => $transferOut->id,
+                'metadata' => $metadata,
             ]);
 
             $this->transactions->create([
@@ -85,6 +122,7 @@ class ReversalService
                 'status' => TransactionStatus::Completed,
                 'amount' => $transferIn->amount,
                 'reference_id' => $transferIn->id,
+                'metadata' => $metadata,
             ]);
 
             return $reversalOut;

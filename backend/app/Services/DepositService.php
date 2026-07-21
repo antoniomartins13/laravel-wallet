@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
 use App\Repositories\Contracts\WalletRepositoryInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DepositService
 {
@@ -20,7 +21,7 @@ class DepositService
 
     public function deposit(DepositDTO $dto): Transaction
     {
-        return DB::transaction(function () use ($dto) {
+        $transaction = DB::transaction(function () use ($dto) {
             $wallet = $this->wallets->findByIdForUpdate($dto->walletId);
 
             $this->wallets->incrementBalance($wallet, $dto->amountCents);
@@ -36,5 +37,14 @@ class DepositService
                 ],
             ]);
         });
+
+        Log::channel('financial')->info('deposit.completed', [
+            'transaction_id' => $transaction->id,
+            'wallet_id' => $dto->walletId,
+            'amount' => $dto->amountCents,
+            'result' => 'success',
+        ]);
+
+        return $transaction;
     }
 }

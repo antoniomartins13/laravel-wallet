@@ -1,5 +1,6 @@
 <?php
 
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -71,6 +72,18 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
+        ],
+
+        // Structured audit trail for every monetary operation (deposit,
+        // transfer, reversal) — separate from the general app log and kept
+        // longer, since it's the record you reach for on a support/fraud
+        // question ("what happened to this wallet, and when").
+        'financial' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/financial.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_FINANCIAL_DAYS', 90),
+            'formatter' => JsonFormatter::class,
         ],
 
         'slack' => [

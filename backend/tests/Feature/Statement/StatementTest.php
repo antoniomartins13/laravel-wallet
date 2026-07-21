@@ -78,4 +78,24 @@ class StatementTest extends TestCase
 
         $response->assertUnauthorized();
     }
+
+    public function test_statement_flags_whether_each_transaction_was_already_reversed(): void
+    {
+        $user = User::factory()->create();
+
+        $depositId = $this->actingAs($user)
+            ->postJson('/api/deposits', ['amount' => 5000])
+            ->json('data.id');
+
+        $this->actingAs($user)->postJson("/api/transactions/{$depositId}/reversal")->assertCreated();
+
+        $response = $this->actingAs($user)->getJson('/api/transactions');
+
+        $response->assertOk();
+
+        $byId = collect($response->json('data'))->keyBy('id');
+        $this->assertTrue($byId[$depositId]['is_reversed']);
+        $reversalId = $byId->except($depositId)->keys()->first();
+        $this->assertFalse($byId[$reversalId]['is_reversed']);
+    }
 }

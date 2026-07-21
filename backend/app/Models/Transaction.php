@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['wallet_id', 'related_wallet_id', 'related_transaction_id', 'type', 'status', 'amount', 'reference_id', 'metadata'])]
 class Transaction extends Model
@@ -48,5 +49,13 @@ class Transaction extends Model
     public function relatedTransaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class, 'related_transaction_id');
+    }
+
+    /**
+     * The reversal transaction that reverses this one, if any.
+     */
+    public function reversedBy(): HasOne
+    {
+        return $this->hasOne(Transaction::class, 'reference_id');
     }
 }

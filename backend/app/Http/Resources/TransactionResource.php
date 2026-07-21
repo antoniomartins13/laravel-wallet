@@ -24,6 +24,9 @@ class TransactionResource extends JsonResource
             'status' => $this->status->value,
             'amount' => $this->amount,
             'reference_id' => $this->reference_id,
+            'is_reversed' => $this->relationLoaded('reversedBy')
+                ? $this->reversedBy !== null
+                : $this->reversedBy()->exists(),
             'created_at' => $this->created_at,
         ];
     }

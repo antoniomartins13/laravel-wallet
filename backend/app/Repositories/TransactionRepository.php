@@ -23,6 +23,7 @@ class TransactionRepository implements TransactionRepositoryInterface
     public function paginateForWallet(string $walletId, int $perPage): LengthAwarePaginator
     {
         return Transaction::where('wallet_id', $walletId)
+            ->with('reversedBy')
             ->orderByDesc('created_at')
             ->paginate($perPage);
     }

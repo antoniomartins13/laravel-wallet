@@ -107,10 +107,14 @@ hover:bg-primary-50 bg-transparent`.
 focus:border-primary focus:ring-2 ring-primary/20`. Label `text-sm
 font-medium text-ink/80` acima; erro em `text-red-700 text-sm` abaixo.
 
-**Card de saldo (assinatura visual do produto)**: fundo `primary`, valor em
-branco `text-4xl font-bold tabular-nums`, label `text-white/60 text-sm
-uppercase tracking-wider`, botão olho para ocultar saldo (mostra `••••••`),
-filete `gold` no topo do card.
+**Card de saldo (assinatura visual do produto)**: fundo `primary`, valor
+`text-4xl font-bold tabular-nums`, label `text-white/60 text-sm uppercase
+tracking-wider`, botão olho para ocultar saldo (mostra `••••••`), filete
+`gold` no topo do card. Valor em `text-white` normalmente; se o saldo for
+negativo, `text-red-400` — **não** `red-700` (o vermelho semântico padrão):
+em fundo `primary` escuro, `red-700` fica ilegível. `red-400` é a única
+exceção documentada à regra "sem cores fora da paleta/escala semântica",
+justamente por ser sobre fundo escuro.
 
 **Linha de extrato**: ícone por tipo em círculo `primary-50`, descrição +
 data, valor à direita — crédito `text-green-700` prefixo `+`, débito

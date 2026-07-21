@@ -29,7 +29,7 @@ export function BalanceCard({ balance, isLoading = false }: BalanceCardProps) {
             )}
           </button>
         </div>
-        <p className="mt-2 text-4xl font-bold tabular-nums">
+        <p className={`mt-2 text-4xl font-bold tabular-nums ${balance < 0 ? 'text-red-400' : 'text-white'}`}>
           {isLoading ? '···' : isHidden ? '••••••' : formatCents(balance)}
         </p>
       </div>

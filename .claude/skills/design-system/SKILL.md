@@ -55,6 +55,45 @@ verde `#15803D` para crédito/sucesso, vermelho `#B91C1C` para débito/erro.
 - Transições discretas: `transition-colors duration-150`. Sem animações
   chamativas, sem parallax, sem gradientes.
 
+## Responsividade
+
+Mobile-first, piso de 375px. Breakpoint principal: `md` (768px). Nunca hover
+como único indicador de estado (toda ação precisa funcionar por toque).
+
+- **Login/Registro**: o painel navy de branding só aparece em `md+`
+  (`hidden md:flex`); abaixo disso é só o formulário, com o logo `mark`
+  compacto no topo em vez do `horizontal-white`.
+- **Layout autenticado**: a sidebar navy vira navegação inferior fixa ou
+  colapsa em menu — nunca uma sidebar fixa espremendo o conteúdo em telas
+  estreitas.
+- **Grids** (dashboard, ações rápidas): `grid-cols-1 md:grid-cols-2` ou
+  `md:grid-cols-3`. Nunca overflow horizontal forçado.
+- **Listas/tabelas** (extrato): em mobile cada linha empilha (ícone +
+  descrição em cima, valor embaixo) em vez de colunas espremidas lado a
+  lado.
+- Áreas de toque ≥ 40px em qualquer breakpoint.
+
+## Telas
+
+- **Login / Registro**: split screen — metade `primary` com o logo
+  `horizontal-white`, metade formulário em `surface` (ver regra responsiva
+  acima para mobile).
+- **Dashboard**: card de saldo em destaque no topo (receita abaixo), ações
+  rápidas (Depositar / Transferir) logo abaixo, últimas transações (linha de
+  extrato) ao final.
+- **Depósito**: página dedicada, não modal — um valor monetário merece foco
+  total de tela, sem risco de fechar sem querer. `CurrencyInput` em
+  destaque; sem etapa de revisão separada (não há contraparte a conferir).
+- **Transferência**: fluxo de 3 passos numa página só, sem navegação de
+  rota entre eles (cada passo substitui o anterior no mesmo card): 1) busca
+  do destinatário por e-mail/CPF, 2) valor, 3) revisão (destinatário, valor,
+  data) com o CTA dourado de confirmação.
+- **Extrato**: lista paginada de linhas de extrato (receita abaixo), botão
+  "Reverter" apenas nas transações elegíveis (nunca em `type: reversal` nem
+  em transações já revertidas), estado da reversão visível inline.
+- **Feedbacks**: toasts, loading states e empty states — ver receitas e
+  Voz e microcopy abaixo.
+
 ## Receitas de componentes
 
 **Botão primário**: `bg-primary text-white hover:bg-primary-900` +
@@ -80,6 +119,16 @@ data, valor à direita — crédito `text-green-700` prefixo `+`, débito
 **Confirmação de transferência**: sempre uma etapa de revisão (destinatário,
 valor, data) antes do envio — padrão de banco real. Botão de confirmar é o
 CTA dourado.
+
+**Toast**: canto inferior direito, empilhados, `bg-white` com borda
+semântica (`border-green-700/20` sucesso, `border-red-700/20` erro) — nunca
+fundo colorido sólido. Texto na cor semântica, botão fechar `text-ink/40`.
+Auto-dismiss em 5s, sempre com botão de fechar manual também.
+
+**Loading state**: spinner circular (`animate-spin`,
+`border-primary/20 border-t-primary`) — nunca skeleton cinza (foge da
+paleta) nem barra de progresso. Botões em carregamento mostram o spinner à
+esquerda do texto e ficam `disabled`.
 
 ## Voz e microcopy
 

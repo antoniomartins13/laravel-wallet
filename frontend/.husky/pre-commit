@@ -1,0 +1,8 @@
+branch=$(git rev-parse --abbrev-ref HEAD)
+pattern="^(main|(feat|fix|chore|docs|refactor|test)\/[a-z0-9._-]+)$"
+
+if ! echo "$branch" | grep -qE "$pattern"; then
+  echo "❌ Nome de branch inválido: '$branch'"
+  echo "   Use: feat/<escopo>, fix/<escopo>, chore/<escopo>, docs/, refactor/, test/"
+  exit 1
+fi

@@ -19,6 +19,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Session check on mount (cookie-based Sanctum auth, no token to read
+    // synchronously) — this is the one legitimate "fetch on mount" case the
+    // set-state-in-effect rule flags; there's no derivable-from-render
+    // alternative here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUser();
   }, [fetchUser]);
 

@@ -182,4 +182,23 @@ class ReversalTest extends TestCase
 
         $response->assertUnauthorized();
     }
+
+    public function test_reversal_ledger_entry_records_the_requesting_ip_and_user_agent(): void
+    {
+        $user = User::factory()->create();
+
+        $depositId = $this->actingAs($user)
+            ->postJson('/api/deposits', ['amount' => 5000])
+            ->json('data.id');
+
+        $this->actingAs($user)
+            ->withHeaders(['User-Agent' => 'TestAgent/1.0'])
+            ->postJson("/api/transactions/{$depositId}/reversal");
+
+        $this->assertDatabaseHas('transactions', [
+            'reference_id' => $depositId,
+            'metadata->ip' => '127.0.0.1',
+            'metadata->user_agent' => 'TestAgent/1.0',
+        ]);
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ApplicationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -27,4 +28,18 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        // Domain/business-rule exceptions are expected user-facing outcomes
+        // (insufficient balance, self-transfer, ...), not application
+        // errors — keep them out of the error log so real 500s stand out.
+        $exceptions->dontReport(ApplicationException::class);
+
+        $exceptions->render(function (ApplicationException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'code' => $e->errorCode(),
+                ], $e->statusCode());
+            }
+        });
     })->create();

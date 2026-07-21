@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DepositController;
+use App\Http\Controllers\TransferController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -9,5 +10,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
 
-    Route::post('/deposits', [DepositController::class, 'store']);
+    Route::middleware('throttle:financial')->group(function () {
+        Route::post('/deposits', [DepositController::class, 'store']);
+        Route::post('/transfers', [TransferController::class, 'store']);
+    });
 });

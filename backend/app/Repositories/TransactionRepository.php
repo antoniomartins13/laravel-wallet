@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Transaction;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TransactionRepository implements TransactionRepositoryInterface
 {
@@ -17,5 +18,12 @@ class TransactionRepository implements TransactionRepositoryInterface
         $transaction->update($attributes);
 
         return $transaction;
+    }
+
+    public function paginateForWallet(string $walletId, int $perPage): LengthAwarePaginator
+    {
+        return Transaction::where('wallet_id', $walletId)
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
     }
 }

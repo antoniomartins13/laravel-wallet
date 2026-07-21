@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { GuestRoute } from './components/GuestRoute';
 import { AppLayout } from './components/layout/AppLayout';
@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { DepositPage } from './pages/DepositPage';
 import { TransferPage } from './pages/TransferPage';
 import { StatementPage } from './pages/StatementPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
           </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );

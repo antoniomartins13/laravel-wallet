@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\Wallet;
+use Illuminate\Support\Collection;
 
 interface WalletRepositoryInterface
 {
@@ -11,6 +12,16 @@ interface WalletRepositoryInterface
      * database transaction.
      */
     public function findByIdForUpdate(string $id): Wallet;
+
+    /**
+     * Lock and return the wallets matching the given ids, in a deterministic
+     * order (by id) so that concurrent transfers always acquire locks in
+     * the same order and can never deadlock against each other.
+     *
+     * @param  array<int, string>  $ids
+     * @return Collection<int, Wallet>
+     */
+    public function lockManyForUpdate(array $ids): Collection;
 
     /**
      * Atomically add (or subtract, if negative) cents to the wallet's

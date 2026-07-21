@@ -30,6 +30,10 @@ class DepositService
                 'type' => TransactionType::Deposit,
                 'status' => TransactionStatus::Completed,
                 'amount' => $dto->amountCents,
+                'metadata' => [
+                    'ip' => $dto->ip,
+                    'user_agent' => $dto->userAgent,
+                ],
             ]);
         });
     }

@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "tablePositions": [
+      {
+        "name": "users",
+        "schemaName": "public",
+        "x": -292.48358610317933,
+        "y": 413.870685621102
+      },
+      {
+        "name": "wallets",
+        "schemaName": "public",
+        "x": 66.56570427881226,
+        "y": 468.9877733350529
+      },
+      {
+        "name": "transactions",
+        "schemaName": "public",
+        "x": 455.99658203125,
+        "y": 334
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": []
+  },
+  "views": {}
+}

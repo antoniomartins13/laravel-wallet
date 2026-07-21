@@ -1,0 +1,61 @@
+Project carteira_financeira {
+  database_type: 'MySQL'
+  Note: 'Carteira financeira — desafio Grupo Adriano Cobuccio'
+}
+
+Table users {
+  id         uuid        [pk]
+  name       varchar     [not null]
+  email      varchar     [not null, unique]
+  cpf        varchar(11) [not null, unique, note: 'String: preserva zeros à esquerda']
+  password   varchar     [not null, note: 'Hash bcrypt']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table wallets {
+  id         uuid   [pk]
+  user_id    uuid   [not null, unique, note: '1:1 com users']
+  balance    bigint [not null, default: 0, note: 'Centavos; pode ser negativo']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table transactions {
+  id                uuid   [pk]
+  wallet_id         uuid   [not null, note: 'Carteira afetada']
+  related_wallet_id uuid   [note: 'Contraparte na transferência']
+  type              transaction_type   [not null]
+  status            transaction_status [not null]
+  amount            bigint [not null, note: 'Sempre positivo; type define o sinal']
+  reference_id      uuid   [note: 'Transação original revertida']
+  metadata          json   [note: 'IP, user-agent — auditoria']
+  created_at        timestamp
+  updated_at        timestamp
+
+  indexes {
+    (wallet_id, created_at) [name: 'idx_statement', note: 'Extrato paginado']
+    reference_id [unique, name: 'uq_single_reversal', note: 'Uma reversão por transação']
+  }
+
+  Note: 'Ledger imutável: nunca UPDATE/DELETE em valores; reversão = novo registro'
+}
+
+Enum transaction_type {
+  deposit
+  transfer_in
+  transfer_out
+  reversal
+}
+
+Enum transaction_status {
+  pending
+  completed
+  reversed
+  failed
+}
+
+Ref: wallets.user_id - users.id
+Ref: transactions.wallet_id > wallets.id
+Ref: transactions.related_wallet_id > wallets.id
+Ref: transactions.reference_id - transactions.id

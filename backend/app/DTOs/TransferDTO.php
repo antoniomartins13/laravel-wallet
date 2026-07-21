@@ -8,6 +8,8 @@ final readonly class TransferDTO
         public string $fromWalletId,
         public string $toWalletId,
         public int $amountCents,
+        public ?string $ip = null,
+        public ?string $userAgent = null,
     ) {
     }
 }

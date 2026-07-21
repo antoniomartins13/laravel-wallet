@@ -32,5 +32,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('financial', function (Request $request) {
             return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Login: complements LoginRequest's own per-email throttle (5
+        // failed attempts) with a coarser, IP-scoped limit that also
+        // catches an attacker spraying attempts across many emails.
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
     }
 }

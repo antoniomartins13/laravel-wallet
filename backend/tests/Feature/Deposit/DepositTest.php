@@ -94,4 +94,19 @@ class DepositTest extends TestCase
             'related_wallet_id' => null,
         ]);
     }
+
+    public function test_deposit_ledger_entry_records_the_requesting_ip_and_user_agent(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->withHeaders(['User-Agent' => 'TestAgent/1.0'])
+            ->postJson('/api/deposits', ['amount' => 3000]);
+
+        $this->assertDatabaseHas('transactions', [
+            'wallet_id' => $user->wallet->id,
+            'metadata->ip' => '127.0.0.1',
+            'metadata->user_agent' => 'TestAgent/1.0',
+        ]);
+    }
 }

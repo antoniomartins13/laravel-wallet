@@ -28,7 +28,7 @@ class DepositServiceTest extends TestCase
 
     public function test_it_locks_the_wallet_credits_it_and_writes_a_completed_deposit_to_the_ledger(): void
     {
-        $dto = new DepositDTO(walletId: 'wallet-uuid', amountCents: 3000);
+        $dto = new DepositDTO(walletId: 'wallet-uuid', amountCents: 3000, ip: '127.0.0.1', userAgent: 'TestAgent/1.0');
 
         $wallet = new Wallet();
         $wallet->id = 'wallet-uuid';
@@ -58,6 +58,10 @@ class DepositServiceTest extends TestCase
                 'type' => TransactionType::Deposit,
                 'status' => TransactionStatus::Completed,
                 'amount' => 3000,
+                'metadata' => [
+                    'ip' => '127.0.0.1',
+                    'user_agent' => 'TestAgent/1.0',
+                ],
             ])
             ->andReturn($expectedTransaction);
 

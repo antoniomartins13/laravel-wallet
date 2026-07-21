@@ -39,6 +39,8 @@ class TransferRequest extends FormRequest
             fromWalletId: $this->user()->wallet->id,
             toWalletId: $this->string('to_wallet_id')->toString(),
             amountCents: $this->integer('amount'),
+            ip: $this->ip(),
+            userAgent: $this->userAgent(),
         );
     }
 }

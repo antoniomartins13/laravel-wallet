@@ -33,6 +33,8 @@ class DepositRequest extends FormRequest
         return new DepositDTO(
             walletId: $this->user()->wallet->id,
             amountCents: $this->integer('amount'),
+            ip: $this->ip(),
+            userAgent: $this->userAgent(),
         );
     }
 }

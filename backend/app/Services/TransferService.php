@@ -47,12 +47,18 @@ class TransferService
             $this->wallets->incrementBalance($fromWallet, -$dto->amountCents);
             $this->wallets->incrementBalance($toWallet, $dto->amountCents);
 
+            $metadata = [
+                'ip' => $dto->ip,
+                'user_agent' => $dto->userAgent,
+            ];
+
             $transferOut = $this->transactions->create([
                 'wallet_id' => $fromWallet->id,
                 'related_wallet_id' => $toWallet->id,
                 'type' => TransactionType::TransferOut,
                 'status' => TransactionStatus::Completed,
                 'amount' => $dto->amountCents,
+                'metadata' => $metadata,
             ]);
 
             $this->transactions->create([
@@ -61,6 +67,7 @@ class TransferService
                 'type' => TransactionType::TransferIn,
                 'status' => TransactionStatus::Completed,
                 'amount' => $dto->amountCents,
+                'metadata' => $metadata,
             ]);
 
             return $transferOut;

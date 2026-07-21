@@ -139,6 +139,34 @@ class TransferTest extends TestCase
         $this->assertSame(10000, $sender->wallet->fresh()->balance);
     }
 
+    public function test_transfer_ledger_entries_record_the_requesting_ip_and_user_agent(): void
+    {
+        $sender = User::factory()->create();
+        $sender->wallet->update(['balance' => 10000]);
+        $recipient = User::factory()->create();
+
+        $this->actingAs($sender)
+            ->withHeaders(['User-Agent' => 'TestAgent/1.0'])
+            ->postJson('/api/transfers', [
+                'to_wallet_id' => $recipient->wallet->id,
+                'amount' => 4000,
+            ]);
+
+        $this->assertDatabaseHas('transactions', [
+            'wallet_id' => $sender->wallet->id,
+            'type' => TransactionType::TransferOut->value,
+            'metadata->ip' => '127.0.0.1',
+            'metadata->user_agent' => 'TestAgent/1.0',
+        ]);
+
+        $this->assertDatabaseHas('transactions', [
+            'wallet_id' => $recipient->wallet->id,
+            'type' => TransactionType::TransferIn->value,
+            'metadata->ip' => '127.0.0.1',
+            'metadata->user_agent' => 'TestAgent/1.0',
+        ]);
+    }
+
     public function test_unauthenticated_user_cannot_transfer(): void
     {
         $recipient = User::factory()->create();

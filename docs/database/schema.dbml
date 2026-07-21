@@ -22,16 +22,17 @@ Table wallets {
 }
 
 Table transactions {
-  id                uuid   [pk]
-  wallet_id         uuid   [not null, note: 'Carteira afetada']
-  related_wallet_id uuid   [note: 'Contraparte na transferência']
-  type              transaction_type   [not null]
-  status            transaction_status [not null]
-  amount            bigint [not null, note: 'Sempre positivo; type define o sinal']
-  reference_id      uuid   [note: 'Transação original revertida']
-  metadata          json   [note: 'IP, user-agent — auditoria']
-  created_at        timestamp
-  updated_at        timestamp
+  id                     uuid   [pk]
+  wallet_id              uuid   [not null, note: 'Carteira afetada']
+  related_wallet_id      uuid   [note: 'Contraparte na transferência']
+  related_transaction_id uuid   [note: 'Perna irmã do par transfer_out/transfer_in']
+  type                   transaction_type   [not null]
+  status                 transaction_status [not null]
+  amount                 bigint [not null, note: 'Sempre positivo; type define o sinal']
+  reference_id           uuid   [note: 'Transação original revertida']
+  metadata               json   [note: 'IP, user-agent — auditoria']
+  created_at             timestamp
+  updated_at             timestamp
 
   indexes {
     (wallet_id, created_at) [name: 'idx_statement', note: 'Extrato paginado']
@@ -59,3 +60,4 @@ Ref: wallets.user_id - users.id
 Ref: transactions.wallet_id > wallets.id
 Ref: transactions.related_wallet_id > wallets.id
 Ref: transactions.reference_id - transactions.id
+Ref: transactions.related_transaction_id - transactions.id

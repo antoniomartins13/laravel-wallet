@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['wallet_id', 'related_wallet_id', 'type', 'status', 'amount', 'reference_id', 'metadata'])]
+#[Fillable(['wallet_id', 'related_wallet_id', 'related_transaction_id', 'type', 'status', 'amount', 'reference_id', 'metadata'])]
 class Transaction extends Model
 {
     /** @use HasFactory<TransactionFactory> */
@@ -40,5 +40,13 @@ class Transaction extends Model
     public function reference(): BelongsTo
     {
         return $this->belongsTo(Transaction::class, 'reference_id');
+    }
+
+    /**
+     * The sibling leg of a transfer pair (transfer_out <-> transfer_in).
+     */
+    public function relatedTransaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class, 'related_transaction_id');
     }
 }

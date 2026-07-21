@@ -61,13 +61,18 @@ class TransferService
                 'metadata' => $metadata,
             ]);
 
-            $this->transactions->create([
+            $transferIn = $this->transactions->create([
                 'wallet_id' => $toWallet->id,
                 'related_wallet_id' => $fromWallet->id,
+                'related_transaction_id' => $transferOut->id,
                 'type' => TransactionType::TransferIn,
                 'status' => TransactionStatus::Completed,
                 'amount' => $dto->amountCents,
                 'metadata' => $metadata,
+            ]);
+
+            $this->transactions->update($transferOut, [
+                'related_transaction_id' => $transferIn->id,
             ]);
 
             return $transferOut;

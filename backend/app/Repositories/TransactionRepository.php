@@ -11,4 +11,11 @@ class TransactionRepository implements TransactionRepositoryInterface
     {
         return Transaction::create($attributes);
     }
+
+    public function update(Transaction $transaction, array $attributes): Transaction
+    {
+        $transaction->update($attributes);
+
+        return $transaction;
+    }
 }

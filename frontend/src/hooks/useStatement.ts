@@ -16,5 +16,6 @@ export function useStatement(page: number, perPage = 15) {
     queryKey: queryKeys.statement(page, perPage),
     queryFn: () => fetchStatement(page, perPage),
     placeholderData: keepPreviousData,
+    refetchInterval: 20_000,
   });
 }

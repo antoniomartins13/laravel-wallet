@@ -4,7 +4,9 @@ import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Spinner } from '../components/ui/Spinner';
 import { Button } from '../components/ui/Button';
+import { BalanceCard } from '../components/wallet/BalanceCard';
 import { TransactionRow } from '../components/wallet/TransactionRow';
+import { useWallet } from '../hooks/useWallet';
 import { useStatement } from '../hooks/useStatement';
 import { useReversal } from '../hooks/useReversal';
 import { useToast } from '../hooks/useToast';
@@ -13,6 +15,7 @@ import type { Transaction } from '../types/api';
 
 export function StatementPage() {
   const [page, setPage] = useState(1);
+  const { data: wallet, isLoading: isWalletLoading } = useWallet();
   const { data: statement, isLoading } = useStatement(page, 15);
   const reversalMutation = useReversal();
   const { showToast } = useToast();
@@ -36,7 +39,16 @@ export function StatementPage() {
       <h1 className="text-2xl font-semibold tracking-tight text-primary">Extrato</h1>
       <p className="mt-1 text-sm text-ink/60">Todas as suas movimentações, mais recentes primeiro.</p>
 
+      <div className="mt-6">
+        <BalanceCard balance={wallet?.balance ?? 0} isLoading={isWalletLoading} />
+      </div>
+
       <Card className="mt-6 p-6">
+        {!isLoading && statement && statement.data.length > 0 && (
+          <p className="mb-4 text-sm text-ink/60">
+            {statement.meta.total} {statement.meta.total === 1 ? 'transação' : 'transações'} no total
+          </p>
+        )}
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner />

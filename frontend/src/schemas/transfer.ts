@@ -11,9 +11,7 @@ export const transferAmountSchema = z.object({
   amount: z
     .string()
     .min(1, 'Informe o valor da transferência.')
-    .transform(parseCurrency)
-    .pipe(z.number().min(1, 'O valor deve ser maior que zero.')),
+    .refine((value) => parseCurrency(value) >= 1, { message: 'O valor deve ser maior que zero.' }),
 });
 
-export type TransferAmountFormValues = z.input<typeof transferAmountSchema>;
-export type TransferAmountFormOutput = z.output<typeof transferAmountSchema>;
+export type TransferAmountFormValues = z.infer<typeof transferAmountSchema>;

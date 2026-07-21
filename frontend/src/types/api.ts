@@ -28,6 +28,7 @@ export interface Transaction {
   status: TransactionStatus;
   amount: number;
   reference_id: string | null;
+  is_reversed: boolean;
   created_at: string;
 }
 

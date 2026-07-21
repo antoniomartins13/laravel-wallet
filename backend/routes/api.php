@@ -14,6 +14,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::get('/wallet', [WalletController::class, 'show']);
+    Route::get('/wallets/lookup', [WalletController::class, 'lookup']);
     Route::get('/transactions', [StatementController::class, 'index']);
 
     Route::middleware('throttle:financial')->group(function () {

@@ -19,6 +19,19 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasUuids, Notifiable;
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (User $user) {
+            Wallet::create([
+                'user_id' => $user->id,
+                'balance' => 0,
+            ]);
+        });
+    }
+
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);
